@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scribble Quest - Ainia AI Game Prototype</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .game-container {
+            width: 100%;
+            height: 100vh;
+            background: white;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            padding: 15px;
+            text-align: center;
+            color: white;
+            position: relative;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .level-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+        }
+
+        .challenge-area {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            position: relative;
+            z-index: 50;
+        }
+
+        .drawing-canvas {
+            flex: 1;
+            background: #f8f9fa;
+            position: relative;
+            cursor: crosshair;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .ai-character {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, #ff6b6b, #ffa500);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            transition: all 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            z-index: 30;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.5);
+        }
+
+        .ai-character.show {
+            transform: translate(-50%, -50%) scale(1);
+            animation: bounce 1s ease infinite alternate;
+        }
+
+        @keyframes bounce {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        .controls {
+            background: white;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            border-top: 2px solid #ddd;
+            z-index: 100;
+            position: relative;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00b894, #00a085);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #e17055, #d63031);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .timer {
+            background: #ffeaa7;
+            border: 3px solid #fdcb6e;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2d3436;
+        }
+
+        .celebration {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .celebration h2 {
+            font-size: 3em;
+            color: #00b894;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .celebration p {
+            font-size: 1.5em;
+            color: #2d3436;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        .stars {
+            font-size: 2em;
+            margin: 20px 0;
+        }
+
+        .instruction {
+            background: #dda0dd;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.1em;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 15px;
+            max-width: 80%;
+            z-index: 40;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .drawing-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1em;
+            color: #2d3436;
+            border: 2px solid #74b9ff;
+            z-index: 30;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(45deg, #00b894, #00a085);
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        .game-state {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            z-index: 100;
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            font-size: 1.5em;
+            z-index: 150;
+            animation: particle-float 2s ease-out forwards;
+        }
+
+        @keyframes particle-float {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.5em; }
+            .challenge-area { font-size: 1.1em; padding: 15px; }
+            .btn { padding: 10px 15px; font-size: 1em; }
+            .ai-character { width: 100px; height: 100px; font-size: 2.5em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🎨 Scribble Quest</h1>
+            <div class="level-info">
+                <span>Level: <span id="levelNumber">1</span></span>
+                <span class="timer">⏰ <span id="timer">30</span>s</span>
+                <span>Score: <span id="score">0</span></span>
+            </div>
+        </div>
+
+        <div class="challenge-area" id="challengeText">
+            🌟 Welcome to Scribble Quest! Draw something that can fly!
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 20%"></div>
+        </div>
+
+        <div class="drawing-canvas" id="drawingCanvas">
+            <canvas id="canvas"></canvas>
+            
+            <div class="instruction" id="instruction">
+                ✏️ Use your finger or mouse to draw! Make it as simple or crazy as you want!
+            </div>
+
+            <div class="ai-character" id="aiCharacter">🦋</div>
+            
+            <div class="drawing-hint" id="drawingHint">
+                💡 Tip: Even stick figures become magical!
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-secondary" id="clearBtn">🗑️ Clear</button>
+            <button class="btn btn-primary" id="magicBtn" disabled>✨ Make It Magic!</button>
+            <button class="btn btn-secondary" id="skipBtn">⏭️ Skip</button>
+        </div>
+
+        <div class="celebration" id="celebration">
+            <h2 id="celebrationTitle">🎉 Amazing!</h2>
+            <div class="stars">⭐⭐⭐</div>
+            <p id="celebrationText">Your scribble became a beautiful butterfly! It's flying around spreading happiness!</p>
+            <button class="btn btn-primary" id="nextLevelBtn">🚀 Next Adventure!</button>
+        </div>
+
+        <div class="game-state">
+            <div>State: <span id="gameState">drawing</span></div>
+            <div>Strokes: <span id="strokeCount">0</span></div>
+        </div>
+    </div>
+
+    <script>
+        class ScribbleQuest {
+            constructor() {
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.isDrawing = false;
+                this.level = 1;
+                this.score = 0;
+                this.timeLeft = 30;
+                this.strokeCount = 0;
+                this.gameState = 'drawing';
+                this.timer = null;
+                
+                this.challenges = [
+                    { text: "🌟 Draw something that can fly!", character: "🦋", response: "Your scribble became a beautiful butterfly!" },
+                    { text: "🏠 Draw a place where someone lives!", character: "🏰", response: "Amazing! You built a magical castle!" },
+                    { text: "🚗 Draw something that moves fast!", character: "🚀", response: "Wow! A super rocket ship!" },
+                    { text: "🌺 Draw something beautiful from nature!", character: "🌸", response: "Perfect! A magical flower that never wilts!" },
+                    { text: "🦁 Draw your favorite animal!", character: "🦄", response: "Incredible! A friendly unicorn appeared!" },
+                    { text: "☀️ Draw something that makes you happy!", character: "🌈", response: "Beautiful! A rainbow that spreads joy!" },
+                    { text: "🎵 Draw something that makes music!", character: "🎺", response: "Fantastic! A magical trumpet that plays melodies!" },
+                    { text: "🍎 Draw something delicious!", character: "🧁", response: "Yummy! A magical cupcake that tastes like dreams!" }
+                ];
+
+                this.currentChallenge = 0;
+                this.setupCanvas();
+                this.setupEventListeners();
+                this.startLevel();
+            }
+
+            setupCanvas() {
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+                
+                this.ctx.strokeStyle = '#2d3436';
+                this.ctx.lineWidth = 4;
+                this.ctx.lineCap = 'round';
+                this.ctx.lineJoin = 'round';
+            }
+
+            resizeCanvas() {
+                const rect = this.canvas.parentElement.getBoundingClientRect();
+                this.canvas.width = rect.width;
+                this.canvas.height = rect.height;
+            }
+
+            setupEventListeners() {
+                // Mouse events
+                this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
+                this.canvas.addEventListener('mousemove', (e) => this.draw(e));
+                this.canvas.addEventListener('mouseup', () => this.stopDrawing());
+                this.canvas.addEventListener('mouseout', () => this.stopDrawing());
+
+                // Touch events
+                this.canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.startDrawing(e.touches[0]);
+                });
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    this.draw(e.touches[0]);
+                });
+                this.canvas.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    this.stopDrawing();
+                });
+
+                // Button events
+                document.getElementById('clearBtn').addEventListener('click', () => this.clearCanvas());
+                document.getElementById('magicBtn').addEventListener('click', () => this.transformDrawing());
+                document.getElementById('skipBtn').addEventListener('click', () => this.skipChallenge());
+                document.getElementById('nextLevelBtn').addEventListener('click', () => this.nextLevel());
+            }
+
+            getEventPos(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                return {
+                    x: (e.clientX - rect.left) * (this.canvas.width / rect.width),
+                    y: (e.clientY - rect.top) * (this.canvas.height / rect.height)
+                };
+            }
+
+            startDrawing(e) {
+                if (this.gameState !== 'drawing') return;
+                
+                this.isDrawing = true;
+                const pos = this.getEventPos(e);
+                this.ctx.beginPath();
+                this.ctx.moveTo(pos.x, pos.y);
+                
+                if (this.strokeCount === 0) {
+                    this.hideInstruction();
+                    this.startTimer();
+                }
+            }
+
+            draw(e) {
+                if (!this.isDrawing || this.gameState !== 'drawing') return;
+                
+                const pos = this.getEventPos(e);
+                this.ctx.lineTo(pos.x, pos.y);
+                this.ctx.stroke();
+                
+                this.strokeCount++;
+                this.updateStrokeCount();
+                this.enableMagicButton();
+            }
+
+            stopDrawing() {
+                this.isDrawing = false;
+            }
+
+            clearCanvas() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.strokeCount = 0;
+                this.updateStrokeCount();
+                this.disableMagicButton();
+                this.showInstruction();
+            }
+
+            transformDrawing() {
+                if (this.strokeCount === 0) return;
+                
+                this.gameState = 'transforming';
+                this.updateGameState();
+                this.disableMagicButton();
+                this.clearTimer();
+                
+                // Hide instruction and show AI transformation
+                this.hideInstruction();
+                this.hideDrawingHint();
+                
+                // Simulate AI processing time
+                setTimeout(() => {
+                    this.showAICharacter();
+                    this.createParticles();
+                    
+                    setTimeout(() => {
+                        this.showCelebration();
+                    }, 1500);
+                }, 1000);
+            }
+
+            showAICharacter() {
+                const character = document.getElementById('aiCharacter');
+                const challenge = this.challenges[this.currentChallenge];
+                character.textContent = challenge.character;
+                character.classList.add('show');
+            }
+
+            hideAICharacter() {
+                const character = document.getElementById('aiCharacter');
+                character.classList.remove('show');
+            }
+
+            createParticles() {
+                const particles = ['✨', '⭐', '🌟', '💫', '🎉'];
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle';
+                        particle.textContent = particles[Math.floor(Math.random() * particles.length)];
+                        particle.style.left = Math.random() * 80 + 10 + '%';
+                        particle.style.top = Math.random() * 80 + 10 + '%';
+                        document.body.appendChild(particle);
+                        
+                        setTimeout(() => particle.remove(), 2000);
+                    }, i * 200);
+                }
+            }
+
+            showCelebration() {
+                const challenge = this.challenges[this.currentChallenge];
+                document.getElementById('celebrationTitle').textContent = '🎉 Amazing!';
+                document.getElementById('celebrationText').textContent = challenge.response + ' You earned 100 points!';
+                document.getElementById('celebration').style.display = 'flex';
+                
+                this.score += 100;
+                this.updateScore();
+            }
+
+            hideCelebration() {
+                document.getElementById('celebration').style.display = 'none';
+            }
+
+            skipChallenge() {
+                this.nextLevel();
+            }
+
+            nextLevel() {
+                this.hideCelebration();
+                this.hideAICharacter();
+                this.clearCanvas();
+                this.level++;
+                this.currentChallenge = (this.currentChallenge + 1) % this.challenges.length;
+                this.updateLevel();
+                this.startLevel();
+            }
+
+            startLevel() {
+                this.gameState = 'drawing';
+                this.updateGameState();
+                this.timeLeft = 30;
+                this.strokeCount = 0;
+                this.updateStrokeCount();
+                this.updateTimer();
+                this.updateProgress();
+                this.showInstruction();
+                this.showDrawingHint();
+                this.disableMagicButton();
+                
+                const challenge = this.challenges[this.currentChallenge];
+                document.getElementById('challengeText').textContent = challenge.text;
+            }
+
+            startTimer() {
+                this.timer = setInterval(() => {
+                    this.timeLeft--;
+                    this.updateTimer();
+                    
+                    if (this.timeLeft <= 0) {
+                        this.clearTimer();
+                        if (this.strokeCount > 0) {
+                            this.transformDrawing();
+                        } else {
+                            this.showTimeUpMessage();
+                        }
+                    }
+                }, 1000);
+            }
+
+            clearTimer() {
+                if (this.timer) {
+                    clearInterval(this.timer);
+                    this.timer = null;
+                }
+            }
+
+            showTimeUpMessage() {
+                document.getElementById('celebrationTitle').textContent = '⏰ Time\'s Up!';
+                document.getElementById('celebrationText').textContent = 'No worries! Every artist needs thinking time. Try the next challenge!';
+                document.getElementById('celebration').style.display = 'flex';
+            }
+
+            enableMagicButton() {
+                const btn = document.getElementById('magicBtn');
+                btn.disabled = false;
+                btn.textContent = '✨ Make It Magic!';
+            }
+
+            disableMagicButton() {
+                const btn = document.getElementById('magicBtn');
+                btn.disabled = true;
+                btn.textContent = '✨ Draw Something First!';
+            }
+
+            showInstruction() {
+                document.getElementById('instruction').style.display = 'block';
+            }
+
+            hideInstruction() {
+                document.getElementById('instruction').style.display = 'none';
+            }
+
+            showDrawingHint() {
+                document.getElementById('drawingHint').style.display = 'block';
+            }
+
+            hideDrawingHint() {
+                document.getElementById('drawingHint').style.display = 'none';
+            }
+
+            updateLevel() {
+                document.getElementById('levelNumber').textContent = this.level;
+            }
+
+            updateScore() {
+                document.getElementById('score').textContent = this.score;
+            }
+
+            updateTimer() {
+                document.getElementById('timer').textContent = this.timeLeft;
+            }
+
+            updateStrokeCount() {
+                document.getElementById('strokeCount').textContent = this.strokeCount;
+            }
+
+            updateGameState() {
+                document.getElementById('gameState').textContent = this.gameState;
+            }
+
+            updateProgress() {
+                const progress = (this.level - 1) * 12.5;
+                document.getElementById('progressFill').style.width = Math.min(progress, 100) + '%';
+            }
+        }
+
+        // Initialize game when page loads
+        window.addEventListener('load', () => {
+            new ScribbleQuest();
+        });
+    </script>
+</body>
+</html>
