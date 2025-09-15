@@ -1,78 +1,87 @@
-# Scribble_quest
-Scribble Quest - AI-Powered Drawing Game
+# Scribble Quest - AI-Powered Drawing Game
+
 An interactive educational game that combines creative drawing with AI-powered analysis and reward generation. Kids draw simple doodles, and AI transforms them into beautiful artwork.
-Features
 
-AI-Generated Challenges: Dynamic drawing prompts created by GPT-3.5 Turbo
-Real-time Drawing Analysis: GPT-4 Vision analyzes drawings for accuracy
-Personalized Rewards: DALL-E generates custom artwork based on successful drawings
-Interactive Canvas: HTML5 Canvas with touch and mouse support
-Progressive Scoring: Points-based system with level advancement
-Responsive Design: Works on desktop, tablet, and mobile devices
+## Features
 
-Tech Stack
-Backend
+- **AI-Generated Challenges**: Dynamic drawing prompts created by GPT-3.5 Turbo
+- **Real-time Drawing Analysis**: GPT-4 Vision analyzes drawings for accuracy
+- **Personalized Rewards**: DALL-E generates custom artwork based on successful drawings
+- **Interactive Canvas**: HTML5 Canvas with touch and mouse support
+- **Progressive Scoring**: Points-based system with level advancement
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
 
-FastAPI - High-performance Python web framework
-OpenAI GPT-3.5 Turbo - Challenge generation via LangChain
-OpenAI GPT-4 Vision - Drawing analysis and validation
-DALL-E 3 - AI image generation for rewards
-PIL - Image processing and validation
+## Tech Stack
 
-Frontend
+### Backend
+- **FastAPI** - High-performance Python web framework
+- **OpenAI GPT-3.5 Turbo** - Challenge generation via LangChain
+- **OpenAI GPT-4 Vision** - Drawing analysis and validation
+- **DALL-E 3** - AI image generation for rewards
+- **PIL** - Image processing and validation
 
-HTML5 Canvas API - Drawing interface
-Vanilla JavaScript - Game logic and real-time interactions
-CSS3 - Responsive design with animations
+### Frontend
+- **HTML5 Canvas API** - Drawing interface
+- **Vanilla JavaScript** - Game logic and real-time interactions
+- **CSS3** - Responsive design with animations
 
-Installation
+## Installation
 
-Clone the repository:
-
-bashgit clone https://github.com/yourusername/scribble-quest.git
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/scribble-quest.git
 cd scribble-quest
+```
 
-Create a virtual environment:
-
-bashpython -m venv venv
+2. Create a virtual environment:
+```bash
+python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-Install dependencies:
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-bashpip install -r requirements.txt
-
-Set up environment variables:
-Create a .env file in the root directory:
-
+4. Set up environment variables:
+Create a `.env` file in the root directory:
+```
 OPENAI_API_KEY=your_openai_api_key_here
-Usage
+```
 
-Start the FastAPI server:
+## Usage
 
-bashuvicorn main:app --reload --port 8000
+1. Start the FastAPI server:
+```bash
+uvicorn main:app --reload --port 8000
+```
 
-Open your browser and navigate to:
-
+2. Open your browser and navigate to:
+```
 http://localhost:8000
+```
 
-Start drawing and let the AI analyze your artwork!
+3. Start drawing and let the AI analyze your artwork!
 
-How It Works
+## How It Works
 
-Challenge Generation: AI creates unique drawing prompts
-User Drawing: Players draw on the interactive canvas
-AI Analysis: Computer vision analyzes the drawing accuracy
-Reward Generation: DALL-E creates personalized artwork for successful drawings
-Progression: Players advance through levels with increasing challenges
+1. **Challenge Generation**: AI creates unique drawing prompts
+2. **User Drawing**: Players draw on the interactive canvas
+3. **AI Analysis**: Computer vision analyzes the drawing accuracy
+4. **Reward Generation**: DALL-E creates personalized artwork for successful drawings
+5. **Progression**: Players advance through levels with increasing challenges
 
-API Endpoints
+## API Endpoints
 
-GET / - Serve the main game interface
-GET /api/generate-questions - Generate new drawing challenges
-POST /api/analyze-drawing - Analyze user drawings and generate rewards
-GET /api/health - Check backend health status
+- `GET /` - Serve the main game interface
+- `GET /api/generate-questions` - Generate new drawing challenges
+- `POST /api/analyze-drawing` - Analyze user drawings and generate rewards
+- `GET /api/health` - Check backend health status
 
-Project Structure
+## Project Structure
+
+```
 scribble-quest/
 ├── main.py                 # FastAPI backend
 ├── requirements.txt        # Python dependencies
@@ -81,22 +90,32 @@ scribble-quest/
 ├── Scribble_quest/
 │   └── index.html         # Frontend game interface
 └── .env                   # Environment variables (not in repo)
-Requirements
+```
 
-Python 3.8+
-OpenAI API key with access to GPT-4 Vision and DALL-E 3
-Modern web browser with HTML5 Canvas support
+## Requirements
 
-Demo
+- Python 3.8+
+- OpenAI API key with access to GPT-4 Vision and DALL-E 3
+- Modern web browser with HTML5 Canvas support
+
+## Demo
+
 The application demonstrates practical integration of multiple AI models:
+- Natural language processing for dynamic content generation
+- Computer vision for real-time drawing analysis
+- Generative AI for personalized visual rewards
 
-Natural language processing for dynamic content generation
-Computer vision for real-time drawing analysis
-Generative AI for personalized visual rewards
+## Contributing
 
-Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-Fork the repository
-Create a feature branch
-Make your changes
-Submit a pull request
+## License
+
+This project is licensed under the MIT License.
+
+## Contact
+
+For questions or feedback, please open an issue on GitHub.
